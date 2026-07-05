@@ -1,77 +1,62 @@
 # 🎧 LeetCode Meme-ifier Pro
 
-**LeetCode Meme-ifier Pro** is a productivity-meets-humor browser extension designed to turn the grind of competitive programming into an interactive experience. It monitors your LeetCode submissions in real-time and provides instant auditory feedback based on the result.
+**LeetCode Meme-ifier Pro** is a productivity-meets-humor browser extension that turns the grind of competitive programming into an interactive experience. It watches your LeetCode **Run** and **Submit** results in real time and reacts with a meme sound the instant a verdict comes in.
 
-
+![Manifest V3](https://img.shields.io/badge/Manifest-V3-blue) ![Chrome](https://img.shields.io/badge/Chrome-supported-brightgreen) ![Sounds](https://img.shields.io/badge/memes-22-orange)
 
 ## ✨ Features
 
-* **Smart Result Detection**: Uses a high-precision `MutationObserver` to instantly trigger sounds for `Accepted`, `Wrong Answer`, and `Runtime Error` statuses.
-* **Curated Meme Library**: Choose from 22 iconic sounds, including *Emotional Damage*, *Vine Boom*, *Coffin Dance*, and *Among Us Role Reveal*.
-* **Sensible Defaults**: Pre-configured to play the **Spiderman Theme** for success and **Faaah!** for failure.
-* **Pro Audio Controls**:
-    * **Volume Slider**: Fine-tune the intensity of your memes to suit your environment.
-    * **Max Duration**: Set a cutoff timer (in seconds) to prevent long audio clips from overlapping your next thought.
-    * **Interactive Preview**: A sleek UI that allows you to toggle between **Play (▶️)** and **Pause (⏸️)** for any sound before saving.
-* **Universal Compatibility**: Fully compatible with **Brave**, **Google Chrome**, and **Microsoft Edge**.
+* **Real-Time Result Detection** — reacts to both the **Run** (Test Result) and **Submit** panels, covering `Accepted`, `Wrong Answer`, `Runtime Error`, `Compile Error`, `Time Limit Exceeded`, and `Memory Limit Exceeded`.
+* **Curated Meme Library** — 22 iconic sounds to pick from, including *Emotional Damage*, *Vine Boom*, *Coffin Dance*, and *Among Us Role Reveal*.
+* **Sensible Defaults** — plays the **Spiderman Theme** on success and **Faaah!** on failure out of the box.
+* **Pro Audio Controls**
+    * **Volume Slider** — tune the intensity of your memes to suit your environment.
+    * **Max Duration** — cap playback length (in seconds) so a clip never overlaps your next thought.
+    * **Interactive Preview** — toggle **Play (▶️)** / **Pause (⏸️)** on any sound before saving.
+* **One-Click Enable/Disable** — a single toggle in the popup lets you mute the whole extension without uninstalling it.
+* **Universal Compatibility** — works in **Chrome**, **Brave**, **Arc**, and other Chromium-based browsers.
 
 ---
 
 ## Demo
 https://github.com/user-attachments/assets/d8bf2340-304f-4af5-a3fa-d536c998ca2b
 
-
 ## 🛠️ Installation & Setup
 
-### 1. Clone the Repository
+### 1. Clone the repository
 ```bash
-git clone [https://github.com/SURYAPRAKASHKALYANAM/Fahhhh-Leetcode.git](https://github.com/SURYAPRAKASHKALYANAM/Fahhhh-Leetcode.git)
+git clone https://github.com/rishibhansali/Fahhhh-Leetcode.git
 cd Fahhhh-Leetcode
-
 ```
 
-### 2. Prepare the Directory
-
-Ensure your local folder structure matches the following:
-
-* `/sounds`
-* `manifest.json`
-* `content.js`
-* `popup.html`
-* `popup.js`
-* `icon128.png` (and other sizes)
-
-### 3. Load the Extension
-
+### 2. Load the extension
 1. Open your browser and navigate to `chrome://extensions/`.
 2. Enable **Developer mode** (toggle in the top-right corner).
-3. Click **Load unpacked** and select your `Fahhhh-Leetcode` project folder.
+3. Click **Load unpacked** and select the `Fahhhh-Leetcode` project folder.
 
-### 4. Critical First Step
+### 3. Configure your memes
+Click the extension icon to open the settings popup, pick your success/failure sounds, adjust volume and max duration, then hit **Save Preferences**.
 
-* Open any [LeetCode Problem](https://leetcode.com/problems/).
-* **Click anywhere on the page once.** Modern browsers like Brave and Chrome block audio until the user interacts with the page.
+> **Note:** browsers block audio autoplay until you've interacted with the page at least once. Click anywhere on the LeetCode tab before your first Run/Submit and you're set for the rest of the session.
 
 ---
 
 ## 📁 Project Structure
 
 ```text
-├── sounds/             # Directory containing 22 meme .mp3 files
+├── sounds/             # 22 meme .mp3 files
 ├── icon16.png          # Toolbar icon
 ├── icon48.png          # Extensions menu icon
 ├── icon128.png         # Main store/display icon
 ├── manifest.json       # Extension configuration (Manifest V3)
-├── content.js          # Logic for monitoring LeetCode result DOM
-├── popup.html          # The Settings UI (HTML/CSS)
-└── popup.js            # Logic for Meme Selection and Audio Previews
-
+├── content.js          # Watches LeetCode's Run/Submit results and plays the matching sound
+├── popup.html          # Settings UI (HTML/CSS)
+└── popup.js            # Meme selection, audio previews, and settings persistence
 ```
 
 ---
 
 ## 🤝 Contributing
-Feel free to fork this repository, add new sounds to the `/sounds` folder, and update the `memeNames` object in `popup.js`.
+Feel free to fork this repository, add new sounds to the `/sounds` folder, and register them in the `memeNames` object in `popup.js`.
 
 **Happy Coding!** 💻🔥
-
