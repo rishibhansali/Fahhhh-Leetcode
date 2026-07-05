@@ -1,88 +1,69 @@
-let audioEnabled = false;
-let isWaitingForSubmission = false;
-let currentResultElement = null;
+const SUCCESS_RESULT = 'Accepted';
+const FAILURE_RESULTS = ['Wrong Answer', 'Runtime Error', 'Compile Error', 'Time Limit Exceeded', 'Memory Limit Exceeded'];
+const PENDING = '__pending__';
 
-// 1. Unlock Audio Context
-window.addEventListener('click', () => {
-    if (!audioEnabled) {
-        audioEnabled = true;
-    }
-});
+let watching = false;
+let lastSubmitResult = PENDING;
+let lastRunResult = PENDING;
 
-// 2. Listen for the SUBMIT button click
-document.addEventListener('click', (e) => {
-    const isSubmitBtn = e.target.innerText === "Submit" || 
-    e.target.closest('button')?.innerText.includes("Submit");
-    
-    if (isSubmitBtn) {
-        isWaitingForSubmission = true;
-        currentResultElement = document.querySelector('span.marked_as_success, h3');
-        observer.observe(document.body, { childList: true, subtree: true });
-    }
-});
-
-// 3. Play function using Storage
 const playSelectedMeme = (key) => {
     chrome.storage.local.get([key, 'volume', 'duration'], (data) => {
         const filename = data[key] || (key === 'successMeme' ? 'spiderman-meme-song.mp3' : 'fahhhhh.mp3');
         const audio = new Audio(chrome.runtime.getURL(`sounds/${filename}`));
-        
-        audio.volume = data.volume || 0.5;
-        audio.play();
 
-        // Stop audio after X seconds
+        audio.volume = data.volume ?? 0.5;
+        audio.play().catch(() => {});
+
         const limit = (data.duration || 5) * 1000;
         setTimeout(() => {
             audio.pause();
             audio.currentTime = 0;
         }, limit);
     });
-    observer.disconnect(); // Stop observing until next submission
 };
 
-
-// 4. Robust Observer
-const observer = new MutationObserver(() => {
-    if (!isWaitingForSubmission) return;
-
-    // Check for "Accepted" using the specific class you identified
-    const successSpan = document.querySelector('span.marked_as_success');
-    
-    // Check for "Wrong Answer" in headers
-    const headers = document.querySelectorAll('h3');
-    let wrongAnswerEl = null;
-    for (let h3 of headers) {
-        if (h3.innerText.includes("Wrong Answer")) {
-            wrongAnswerEl = h3;
-            break;
+const handleResult = (resultText) => {
+    chrome.storage.local.get(['extensionEnabled'], (res) => {
+        if (res.extensionEnabled === false) return;
+        if (resultText === SUCCESS_RESULT) {
+            playSelectedMeme('successMeme');
+        } else if (FAILURE_RESULTS.includes(resultText)) {
+            playSelectedMeme('failMeme');
         }
-    }
+    });
+};
 
-    const errorSpan = document.querySelector('span[data-e2e-locator="console-result"]');
-    // 3. Check for Runtime Error 
-    const isRuntimeError = errorSpan && errorSpan.innerText.includes("Runtime Error");
+// Runs on every Submit (result shows up in the "Submission Detail" tab label)
+const checkSubmitResult = () => {
+    const text = document.getElementById('submission-detail_tab')?.innerText.trim();
+    if (!text || text === lastSubmitResult) return;
+    lastSubmitResult = text;
+    handleResult(text);
+};
 
-    // 4 . compile Error check 
-    const isCompileError = errorSpan && errorSpan.innerText.includes("Compile Error");
+// Runs on every Run (result shows up inside the Test Result panel, not the tab label)
+const checkRunResult = () => {
+    const text = document.querySelector('[data-e2e-locator="console-result"]')?.innerText.trim();
+    if (!text || text === lastRunResult) return;
+    lastRunResult = text;
+    handleResult(text);
+};
 
-    // 5. TLE 
-    const isTLE = errorSpan && errorSpan.innerText.includes("Time Limit Exceeded");   
-    
-    const failureEl = wrongAnswerEl || errorSpan;
-    const failureSpan = failureEl && (
-        failureEl.innerText.includes("Wrong Answer") ||
-        failureEl.innerText.includes("Runtime Error") ||
-        failureEl.innerText.includes("Compile Error") ||
-        failureEl.innerText.includes("Time Limit Exceeded")
-    );
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    const locator = btn?.getAttribute('data-e2e-locator');
+    const isRunOrSubmit = locator === 'console-run-button' || locator === 'console-submit-button' ||
+        btn?.innerText.includes('Run') || btn?.innerText.includes('Submit');
 
-    if (successSpan && successSpan !== currentResultElement) {
-        playSelectedMeme('successMeme');
-        isWaitingForSubmission = false;
-        currentResultElement = successSpan;
-    } else if ( failureSpan && currentResultElement !== failureSpan) {
-        playSelectedMeme('failMeme');
-        isWaitingForSubmission = false;
-        currentResultElement = failureSpan;
+    if (isRunOrSubmit) {
+        watching = true;
+        lastSubmitResult = PENDING;
+        lastRunResult = PENDING;
     }
 });
+
+setInterval(() => {
+    if (!watching) return;
+    checkSubmitResult();
+    checkRunResult();
+}, 500);
