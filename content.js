@@ -1,27 +1,22 @@
-let audioEnabled = false;
 let isWaitingForSubmission = false;
 let currentResultElement = null;
 
-// 1. Unlock Audio Context
-window.addEventListener('click', () => {
-    if (!audioEnabled) {
-        audioEnabled = true;
-    }
-});
-
-// 2. Listen for the SUBMIT button click
+// 1. Listen for the SUBMIT button click
 document.addEventListener('click', (e) => {
-    const isSubmitBtn = e.target.innerText === "Submit" || 
+    const isSubmitBtn = e.target.innerText === "Submit" ||
     e.target.closest('button')?.innerText.includes("Submit");
-    
+
     if (isSubmitBtn) {
-        isWaitingForSubmission = true;
-        currentResultElement = document.querySelector('span.marked_as_success, h3');
-        observer.observe(document.body, { childList: true, subtree: true });
+        chrome.storage.local.get(['extensionEnabled'], (res) => {
+            if (res.extensionEnabled === false) return;
+            isWaitingForSubmission = true;
+            currentResultElement = document.querySelector('span.marked_as_success, h3');
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
     }
 });
 
-// 3. Play function using Storage
+// 2. Play function using Storage
 const playSelectedMeme = (key) => {
     chrome.storage.local.get([key, 'volume', 'duration'], (data) => {
         const filename = data[key] || (key === 'successMeme' ? 'spiderman-meme-song.mp3' : 'fahhhhh.mp3');
@@ -41,7 +36,7 @@ const playSelectedMeme = (key) => {
 };
 
 
-// 4. Robust Observer
+// 3. Robust Observer
 const observer = new MutationObserver(() => {
     if (!isWaitingForSubmission) return;
 
